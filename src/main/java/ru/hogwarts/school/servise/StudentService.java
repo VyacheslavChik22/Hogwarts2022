@@ -1,8 +1,12 @@
-package ru.hogwarts.school.servise;;
+package ru.hogwarts.school.servise;
+
+;
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
+
 import java.util.Collection;
+import java.util.List;
 
 @Service
 public class StudentService {
@@ -41,10 +45,21 @@ public class StudentService {
         return studentRepository.findAllStudentsByAgeBetween(age, ag2);    //используем метод поиска студентов по возрасту
     }
 
-    public Collection<Student> findAllByNamePart(String part) {
+    public Collection<Student> findAllByNamePart(String part) {              // найти студента по части имени
         return studentRepository.findAllByNameContains(part);
     }
 
+    public Integer getAmountStudents() {                                     //подсчет студентов в таблице
+        return studentRepository.getAmountStudents();
+    }
+
+    public Integer getAverageAgeStudents() {
+        return studentRepository.getAverageAgeStudents();                   // подсчет среднего возраста студентов
+    }
+
+    public List<Student> getFiveStudentsWithMaxAge(){
+        return studentRepository.getFiveLastId();
+    }
 }
 
 

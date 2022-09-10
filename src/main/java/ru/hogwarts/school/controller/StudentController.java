@@ -1,4 +1,5 @@
 package ru.hogwarts.school.controller;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -9,6 +10,7 @@ import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.servise.AvatarService;
 import ru.hogwarts.school.servise.StudentService;
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +18,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("student")
@@ -124,7 +127,22 @@ public class StudentController {
             is.transferTo(os);
         }
 
-
     }
+
+    @GetMapping("/amountStudents")   // подсчет кол-ва студентов
+    public Integer getAmountStudents() {
+        return studentService.getAmountStudents();
+    }
+
+    @GetMapping("/averageAgeStudents") // средний возраст студентов
+    public Integer getAverageAgeStudents() {
+        return studentService.getAverageAgeStudents();
+    }
+
+    @GetMapping("fiveLastID")
+    public List<Student> getFiveLastId(){
+        return studentService.getFiveStudentsWithMaxAge();
+    }
+
 }
 
