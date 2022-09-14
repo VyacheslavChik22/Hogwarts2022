@@ -27,8 +27,8 @@ public class AvatarController {
         this.avatarService = avatarService;
     }
 
-    @GetMapping(value ="/allAvatars")
-     public ResponseEntity<Collection<Avatar>> getAllAvatars (@RequestParam("page") Integer pageNumber,@RequestParam("size") Integer pageSize){
+    @GetMapping(value = "/allAvatars")
+    public ResponseEntity<Collection<Avatar>> getAllAvatars(@RequestParam("page") Integer pageNumber, @RequestParam("size") Integer pageSize) {
         Collection<Avatar> avatars = avatarService.getAllAvatars(pageNumber, pageSize);
         return ResponseEntity.ok(avatars);
     }
@@ -47,8 +47,6 @@ public class AvatarController {
         headers.setContentLength(avatar.getData().length);
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(avatar.getData());
     }
-
-
 
 }
 
