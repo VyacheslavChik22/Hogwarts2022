@@ -1,0 +1,15 @@
+CREATE TABLE Driver(
+    ID   INTEGER PRIMARY KEY  ,
+    name TEXT UNIQUE NOT NULL,
+    age INTEGER CHECK (age >= 18),
+    driverLicense BOOLEAN
+	сar_id INTEGER REFERENCES Car (ID)
+)
+
+CREATE TABLE Car(
+    ID INTEGER PRIMARY KEY,
+    tip TEXT UNIQUE NOT NULL,
+    model TEXT UNIQUE NOT NULL,
+    price NUMERIC CHECK (price > 0)
+
+)
