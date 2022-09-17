@@ -40,20 +40,12 @@ public class StudentController {
         return studentService.addStudent(student);
     }
 
-    @PostMapping(value = "/{id}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadAvatar(@PathVariable Long id, @RequestParam MultipartFile avatar) throws IOException {
-        if (avatar.getSize() >= 1024 * 300) {
-            ResponseEntity.badRequest().body(" File is too big ");
-        }
-        avatarService.uploadAvatar(id, avatar);
-        return ResponseEntity.ok().build();
-    }
 
     @GetMapping("/{id}")                                        //http:/localhost:8080/student/1...  выводим студента
-    public ResponseEntity<Collection<Student>> getStudentId(@PathVariable Long id) {
+    public ResponseEntity<Student> getStudentId(@PathVariable Long id) {
 
-        Collection<Student> student = studentService.getStudentId(id);
-        if (student == null) {                                     // Если студент не найден:
+        Student student = studentService.getStudentId(id);
+        if (student == null || id <= 0) {                                     // Если студент не найден:
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         return ResponseEntity.ok(student);
@@ -78,17 +70,31 @@ public class StudentController {
         if (age >= 10 && age <= 20) {  //Студенты зачисляются с 11 лет, учатся 7 лет и не могут быть старше 20ти лет.
             return ResponseEntity.ok(studentService.findStudentsByAge(age, age2));
         }
-        if (id > 0) {
-            return ResponseEntity.ok(studentService.getStudentId(id));
-        }
+
 
         return ResponseEntity.ok(studentService.getAllStudents());
+    }
+
+    @GetMapping("/amountStudents")   // подсчет кол-ва студентов
+    public Integer getAmountStudents() {
+        return studentService.getAmountStudents();
+    }
+
+    @GetMapping("/averageAgeStudents") // средний возраст студентов
+    public double getAverageAgeStudents() {
+        return studentService.getAverageAgeStudents();
+    }
+
+    @GetMapping("fiveLastID")
+    public List<Student> getFiveLastId() {
+        return studentService.getFiveStudentsWithMaxId();
     }
 
     @PutMapping
     public ResponseEntity<Student> editStudent(@RequestBody Student student) {
         Student foundStudent = studentService.editStudent(student);
-        if (foundStudent == null) {                                             // Если студент не найден:
+        if (foundStudent == null) {
+            // Если студент не найден:
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         return ResponseEntity.ok(foundStudent);
@@ -98,50 +104,6 @@ public class StudentController {
     public ResponseEntity<Student> deleteStudent(@PathVariable Long id) {
         studentService.deleteById(id);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping(value = "/{id}/avatar/preview")
-    public ResponseEntity<byte[]> downLoadAvatar(@PathVariable Long id) {
-        Avatar avatar = avatarService.findAvatar(id); //По идентификатору находим аватарку
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(avatar.getMediaType()));
-        headers.setContentLength(avatar.getPreview().length);
-
-        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(avatar.getPreview());
-    }
-
-    @GetMapping(value = "/{id}/avatar")
-    public void downLoadAvatar(@PathVariable Long id, HttpServletResponse response) throws IOException {
-        Avatar avatar = avatarService.findAvatar(id);
-
-        Path path = Path.of(avatar.getFilePath()); // В виде объекта получаем путь к файлу
-
-        //Объявляем переменные входящих и выходящих потоков
-
-        try (InputStream is = Files.newInputStream(path);
-             OutputStream os = response.getOutputStream();) {
-            response.setStatus(200);
-            response.setContentType(avatar.getMediaType());
-            response.setContentLength((int) avatar.getFileSize());
-            is.transferTo(os);
-        }
-
-    }
-
-    @GetMapping("/amountStudents")   // подсчет кол-ва студентов
-    public Integer getAmountStudents() {
-        return studentService.getAmountStudents();
-    }
-
-    @GetMapping("/averageAgeStudents") // средний возраст студентов
-    public Integer getAverageAgeStudents() {
-        return studentService.getAverageAgeStudents();
-    }
-
-    @GetMapping("fiveLastID")
-    public List<Student> getFiveLastId(){
-        return studentService.getFiveStudentsWithMaxAge();
     }
 
 }
