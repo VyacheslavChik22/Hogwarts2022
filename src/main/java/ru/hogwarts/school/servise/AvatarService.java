@@ -1,6 +1,9 @@
 package ru.hogwarts.school.servise;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.model.Avatar;
@@ -16,13 +19,17 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Objects;
+import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 @Service
 @Transactional
 public class AvatarService {
+    private final Logger logger = LoggerFactory.getLogger(AvatarService.class);
     @Value("${path.to.avatars.folder}")
     private String avatarsDir;
 
@@ -36,6 +43,7 @@ public class AvatarService {
     }
 
     public void uploadAvatar(Long studentId, MultipartFile avatarFile) throws IOException {
+        logger.debug("Request method uploadAvatar {},{}:", studentId, avatarFile);
         Student student = studentRepository.findById(studentId).orElse(null);
         Path filePath = Path.of(avatarsDir, student + "." + getExtension(Objects.requireNonNull(avatarFile.getOriginalFilename())));
         Files.createDirectories(filePath.getParent());
@@ -58,10 +66,19 @@ public class AvatarService {
     }
 
     public Avatar findAvatar(Long id) {
+        logger.debug("Request method findAvatar {}:", id);
         return avatarRepository.findByStudentId(id).orElse(new Avatar());
     }
 
+    //пагинация
+    public Collection<Avatar> getAllAvatars(Integer pageNumber, Integer pageSize) {
+        logger.debug("Request method getAllAvatars {},{}:", pageNumber, pageSize);
+        PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
+        return avatarRepository.findAll(pageRequest).getContent();
+    }
 
+
+    //превью
     private byte[] generateImagePreview(Path filePath) throws IOException {
         try (InputStream is = Files.newInputStream(filePath);
              BufferedInputStream bufinpst = new BufferedInputStream(is, 1024);
