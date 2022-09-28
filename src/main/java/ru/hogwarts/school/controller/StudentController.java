@@ -1,30 +1,18 @@
 package ru.hogwarts.school.controller;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.servise.AvatarService;
 import ru.hogwarts.school.servise.StudentService;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 
 @RestController
 @RequestMapping("student")
 public class StudentController {
-    //заинжектим StudentService для использования его методов
-
     private final StudentService studentService;
     private final AvatarService avatarService;
 
@@ -40,6 +28,10 @@ public class StudentController {
         return studentService.addStudent(student);
     }
 
+    @GetMapping("/all")
+    public Collection<Student> getAllStudents() {
+        return studentService.getAllStudents();
+    }
 
     @GetMapping("/{id}")                                        //http:/localhost:8080/student/1...  выводим студента
     public ResponseEntity<Student> getStudentId(@PathVariable Long id) {
@@ -85,7 +77,7 @@ public class StudentController {
         return studentService.getAverageAgeStudents();
     }
 
-    @GetMapping("fiveLastID")
+    @GetMapping("/fiveLastID")
     public List<Student> getFiveLastId() {
         return studentService.getFiveStudentsWithMaxId();
     }
@@ -104,6 +96,16 @@ public class StudentController {
     public ResponseEntity<Student> deleteStudent(@PathVariable Long id) {
         studentService.deleteById(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/getAllNameStartsWithA")
+    public ResponseEntity<Collection<String>> getAllNameStartsWithA() {
+        return ResponseEntity.ok(studentService.getAllNameStartsWithA());
+    }
+
+    @GetMapping("/getAverageAgeStream")
+    public ResponseEntity<Double> getAverageAgeStream() {
+        return ResponseEntity.ok(studentService.getAverageAgeStudentsStream());
     }
 
 }

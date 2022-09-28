@@ -65,5 +65,14 @@ public class FacultyController {
         return ResponseEntity.ok().build();
 
     }
+
+    @GetMapping("getLongNameFaculty")
+    public ResponseEntity<String> getLongNameFaculty() {
+        String lNF = facultyService.getLongNameFaculty();
+        if (lNF != null) {
+            return ResponseEntity.ok(lNF);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
 }
 
