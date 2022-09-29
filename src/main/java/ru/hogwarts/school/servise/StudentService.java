@@ -2,7 +2,6 @@ package ru.hogwarts.school.servise;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
@@ -10,6 +9,7 @@ import ru.hogwarts.school.repository.StudentRepository;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @Service
 public class StudentService {
@@ -21,6 +21,7 @@ public class StudentService {
     public StudentService(StudentRepository studentRepository) {
         this.studentRepository = studentRepository;
     }
+
 
     public Student addStudent(Student student) {   //Метод добавления студента
         return studentRepository.save(student);
@@ -89,6 +90,60 @@ public class StudentService {
                 .mapToInt(student -> student.getAge())
                 .average().orElse(0);
     }
+
+    //               Метод для получения коллекции имен студентов(МПКИС):
+    private List<String> studentsNamesForNextActions() {
+        List<String> infoNamesStudents = studentRepository.findAll().stream()
+                .map(student -> student.getName())
+                .collect(Collectors.toList());
+        return infoNamesStudents;
+    }
+
+    // запускаем два параллельных потока для вывода имен студентов в консоль.
+    public void getAllNamesInConsole() {
+        List<String> namesStudents = studentsNamesForNextActions(); // переменная с  методом (МПКИС)
+
+        logger.info("Основной поток Имена: {}", namesStudents.get(0));
+        logger.info("Основной поток Имена: {}", namesStudents.get(1));
+        new Thread(() -> {
+            logger.info("Поток №_2 Имена: {}", namesStudents.get(2));
+            logger.info("Поток №_2 Имена: {}", namesStudents.get(3));
+        }).start();
+        new Thread(() -> {
+            logger.info("Поток №_3 Имена: {}", namesStudents.get(4));
+            logger.info("Поток №_3 Имена: {}", namesStudents.get(5));
+        }).start();
+
+
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    public final Object flag = new Object(); //Объект для блокировки потока
+
+    // Метод для вывода двух имен студентов в консоль по параметрам
+    private void printNamesToConsole(int index, List<String> namesStudentsForPrint) {
+        synchronized (flag) {
+            logger.info("Имена: {}", namesStudentsForPrint.get(index));
+            logger.info("Имена: {}", namesStudentsForPrint.get(index + 1));
+        }
+    }
+
+    public void getSynchronizedThreadsWithNames() {
+        List<String> namesStudents = studentsNamesForNextActions();// переменная с  методом (МПКИС)
+
+        printNamesToConsole(0, namesStudents);               // поток с индексами 0, 1
+
+        new Thread(() -> {
+            printNamesToConsole(2, namesStudents);      // поток с индексами 2, 3
+
+        }).start();
+        new Thread(() -> {
+            printNamesToConsole(4, namesStudents);      // поток с индексами 4, 5
+
+        }).start();
+
+    }
+
 }
 
 

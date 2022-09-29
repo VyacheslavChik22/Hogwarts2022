@@ -108,5 +108,14 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getAverageAgeStudentsStream());
     }
 
+    @GetMapping("allNamesInConsole")
+   public void getAllNamesInConsole(){
+        studentService.getAllNamesInConsole();
+    }
+
+    @GetMapping("/synchronizedThreads")
+    public void getSynchronizedThreads(){
+        studentService.getSynchronizedThreadsWithNames();
+    }
 }
 

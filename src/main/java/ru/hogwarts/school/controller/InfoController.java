@@ -21,4 +21,5 @@ public class InfoController {
     public Integer integerValue(){
         return servicePort.getInfoIntegerValue();
     }
+
 }
